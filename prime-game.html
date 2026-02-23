@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>素数クイズゲーム</title>
+<style>
+  body { font-family: sans-serif; text-align: center; padding: 20px; }
+  #num { font-size: 60px; margin: 20px; }
+  button { font-size: 24px; padding: 10px 20px; margin: 10px; }
+</style>
+</head>
+<body>
+
+<h1>素数クイズゲーム</h1>
+<div id="num">?</div>
+<div>
+  <button onclick="answer(true)">素数！</button>
+  <button onclick="answer(false)">合成数！</button>
+</div>
+<h2 id="score">スコア: 0</h2>
+<h3 id="time">残り: 30 秒</h3>
+
+<script>
+let score = 0;
+let current = 0;
+let timeLeft = 30;
+let timer;
+
+function isPrime(n) {
+  if (n < 2) return false;
+  if (n === 2) return true;
+  if (n % 2 === 0) return false;
+  const r = Math.floor(Math.sqrt(n));
+  for (let i = 3; i <= r; i += 2) {
+    if (n % i === 0) return false;
+  }
+  return true;
+}
+
+function newNumber() {
+  current = Math.floor(Math.random() * 200) + 1;
+  document.getElementById("num").textContent = current;
+}
+
+function answer(isPrimeGuess) {
+  const correct = isPrime(current);
+  if (correct === isPrimeGuess) {
+    score++;
+  } else {
+    score--;
+  }
+  document.getElementById("score").textContent = "スコア: " + score;
+  newNumber();
+}
+
+function startGame() {
+  newNumber();
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("time").textContent = "残り: " + timeLeft + " 秒";
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      alert("ゲーム終了！スコア: " + score);
+    }
+  }, 1000);
+}
+
+startGame();
+</script>
+
+</body>
+</html>
