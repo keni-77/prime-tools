@@ -177,6 +177,7 @@
   <button onclick="run()">素因数分解</button>
   <button onclick="runNthPrime()">n番目の素数</button>
   <button onclick="runCountPrime()">n以下の素数の数</button>
+  <button onclick="runSumPrime()">n以下の素数の和</button>
   <button onclick="resetAll()" class = "reset">リセット</button>
 
   <p id="result"></p>
@@ -424,6 +425,76 @@ function runCountPrime() {
   }, 50);
 }
 
+async function sumPrimesUnder(n) {
+  n = Number(n);
+  if (!Number.isInteger(n) || n < 2) {
+    return "🌸 2以上の整数を入れてね 🌸";
+  }
+
+  let sum = 2; // 2 は素数
+  const limit = n;
+  const segmentSize = 5_000_000;
+  const sqrtLimit = Math.floor(Math.sqrt(limit));
+
+  // 小さい素数を通常の篩で作る
+  const small = new Uint8Array(sqrtLimit + 1);
+  const basePrimes = [];
+
+  for (let i = 2; i <= sqrtLimit; i++) {
+    if (!small[i]) {
+      basePrimes.push(i);
+      for (let j = i * 2; j <= sqrtLimit; j += i) {
+        small[j] = 1;
+      }
+    }
+  }
+
+  // 分割篩で n 以下の素数の和を求める
+  for (let low = 3; low <= limit; low += segmentSize) {
+    const high = Math.min(low + segmentSize - 1, limit);
+    const size = Math.floor((high - low) / 2) + 1;
+    const segment = new Uint8Array(size);
+
+    for (const p of basePrimes) {
+      let start = Math.max(p * p, Math.ceil(low / p) * p);
+      if (start % 2 === 0) start += p;
+
+      for (let j = start; j <= high; j += 2 * p) {
+        segment[Math.floor((j - low) / 2)] = 1;
+      }
+    }
+
+    for (let i = 0; i < size; i++) {
+      if (!segment[i]) {
+        sum += low + i * 2;
+      }
+    }
+
+    await new Promise(r => setTimeout(r));
+  }
+
+  return `🌸 ${n} 以下の素数の和は ${sum} です 🌸`;
+}
+
+function runSumPrime() {
+  const btn = document.querySelector("button[onclick='runSumPrime()']");
+  const loader = document.getElementById("loader");
+  const result = document.getElementById("result");
+  const inputStr = document.getElementById("num").value.trim();
+
+  btn.classList.add("glow");
+  setTimeout(() => btn.classList.remove("glow"), 250);
+
+  result.textContent = "⏳ ロード中…";
+  loader.style.display = "block";
+
+  setTimeout(async () => {
+    result.textContent = await sumPrimesUnder(inputStr);
+    loader.style.display = "none";
+  }, 50);
+}
+
+// リセットボタン 上に追記
 function resetAll() {
   const input = document.getElementById("num");
   const result = document.getElementById("result");
@@ -433,10 +504,7 @@ function resetAll() {
   result.textContent = "";   // 結果を消す
   loader.style.display = "none"; // ローダーを消す
 }
-
-
 </script>
 
 </body>
 </html>
-
