@@ -119,6 +119,66 @@
       to   { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
+    /* 左上のメニューボタン */
+#menuButton {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: #ff9ecb;
+  color: white;
+  font-size: 1.8rem;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 3px 8px rgba(255, 150, 180, 0.4);
+  transition: 0.2s;
+}
+
+#menuButton:hover {
+  background: #ff7aa8;
+  transform: scale(1.05);
+}
+
+/* スライドメニュー本体 */
+#sideMenu {
+  position: fixed;
+  top: 0;
+  left: -250px; /* 初期は隠す */
+  width: 250px;
+  height: 100%;
+  background: snow;
+  box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  transition: 0.3s;
+  z-index: 999;
+  border-radius: 0 15px 15px 0;
+}
+
+#sideMenu h3 {
+  color: #ff7aa8;
+  margin-bottom: 15px;
+}
+
+/* メニュー内のボタン */
+#sideMenu button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+}
+
+/* 背景の暗いオーバーレイ */
+#menuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  display: none;
+  z-index: 500;
+}
+
     /* ===== スマホ用レイアウト ===== */
     @media (max-width: 600px) {
 
@@ -169,6 +229,18 @@
   </style>
 </head>
 <body>
+
+<!-- メニューボタン -->
+<div id="menuButton">☰</div>
+
+<!-- スライドメニュー -->
+<div id="sideMenu">
+  <h3>🌸 メニュー 🌸</h3>
+  
+</div>
+
+<!-- メニュー展開時の背景 -->
+<div id="menuOverlay"></div>
 
 <div class="box">
   <h2>🌸 素数に関するツール 🌸</h2>
@@ -504,6 +576,22 @@ function resetAll() {
   result.textContent = "";   // 結果を消す
   loader.style.display = "none"; // ローダーを消す
 }
+
+// メニュー開閉
+const menuButton = document.getElementById("menuButton");
+const sideMenu = document.getElementById("sideMenu");
+const menuOverlay = document.getElementById("menuOverlay");
+
+menuButton.onclick = () => {
+  sideMenu.style.left = "0";
+  menuOverlay.style.display = "block";
+};
+
+menuOverlay.onclick = () => {
+  sideMenu.style.left = "-250px";
+  menuOverlay.style.display = "none";
+};
+
 </script>
 
 </body>
