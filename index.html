@@ -433,10 +433,10 @@ async function countPrimesUnder(n) {
   let count = 1; // 2 は素数
 
   const limit = n;
-  const segmentSize = 5_000_000;
+  const segmentSize = 5000000;
   const sqrtLimit = Math.floor(Math.sqrt(limit));
 
-  // 小さい素数を通常の篩で作る
+  // 小さい素数
   const small = new Uint8Array(sqrtLimit + 1);
   const basePrimes = [];
 
@@ -449,23 +449,19 @@ async function countPrimesUnder(n) {
     }
   }
 
-  // 分割篩で n 以下の素数を数える
+  // 分割篩
   for (let low = 3; low <= limit; low += segmentSize) {
     const high = Math.min(low + segmentSize - 1, limit);
     const size = Math.floor((high - low) / 2) + 1;
     const segment = new Uint8Array(size);
 
     for (const p of basePrimes) {
-      // ★ 修正ポイント：start の計算を安全にする
       let start = p * p;
       if (start < low) {
         start = Math.ceil(low / p) * p;
       }
-
-      // 奇数に揃える
       if (start % 2 === 0) start += p;
 
-      // マーク
       for (let j = start; j <= high; j += 2 * p) {
         const idx = Math.floor((j - low) / 2);
         if (idx >= 0 && idx < size) {
@@ -474,14 +470,10 @@ async function countPrimesUnder(n) {
       }
     }
 
-    // 素数をカウント
     for (let i = 0; i < size; i++) {
-      if (!segment[i]) {
-        count++;
-      }
+      if (!segment[i]) count++;
     }
 
-    // UI を止めない
     await new Promise(r => setTimeout(r));
   }
 
