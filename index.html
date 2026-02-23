@@ -241,7 +241,7 @@
 
 <!-- メニュー展開時の背景 -->
 <div id="menuOverlay"></div>
-ただいま「素因数分解」以外の機能に問題が発生しております。修正までしばらくお待ち下さい。
+
 <div class="box">
   <h2>🌸 素数に関するツール 🌸</h2>
 
@@ -341,66 +341,47 @@ function run() {
   }, 50);
 }
 
-// 超高速 n番目の素数（Segmented Sieve + 奇数のみ）
+// 安定版 n番目の素数（通常のエラトステネスの篩）
 async function nthPrimeUltra(n) {
   n = Number(n);
   if (!Number.isInteger(n) || n < 1) {
     return "🌸 1以上の整数を入れてね 🌸";
   }
 
-  if (n === 1) return "🌸 1番目の素数は 2 です 🌸";
-
-  // --- 上限推定 ---
-  const nn = n;
-  let limit = Math.ceil(nn * (Math.log(nn) + Math.log(Math.log(nn))));
-  limit = Math.floor(limit * 2.0);
-  if (limit < 100) limit = 100;
-
-  const segmentSize = 5_000_000; // 5百万ずつ処理
-  const sqrtLimit = Math.floor(Math.sqrt(limit));
-
-  // 小さい素数を通常の篩で作る
-  const small = new Uint8Array(sqrtLimit + 1);
-  const basePrimes = [];
-
-  for (let i = 2; i <= sqrtLimit; i++) {
-    if (!small[i]) {
-      basePrimes.push(i);
-      for (let j = i * 2; j <= sqrtLimit; j += i) {
-        small[j] = 1;
-      }
-    }
+  if (n === 1) {
+    return "🌸 1番目の素数は 2 です 🌸";
   }
 
-  let count = 1; // 2 はカウント済み
+  // 上限の目安：p_n < n (log n + log log n) （n >= 6 のとき）
+  let limit;
+  if (n < 6) {
+    limit = 15;
+  } else {
+    const ln = Math.log(n);
+    limit = Math.ceil(n * (ln + Math.log(ln))) + 10;
+  }
 
-  // --- 分割篩 ---
-  for (let low = 3; low <= limit; low += segmentSize) {
-    const high = Math.min(low + segmentSize - 1, limit);
-    const size = Math.floor((high - low) / 2) + 1;
-    const segment = new Uint8Array(size);
+  const isComposite = new Uint8Array(limit + 1);
+  let count = 0;
 
-    for (const p of basePrimes) {
-      let start = Math.max(p * p, Math.ceil(low / p) * p);
-      if (start % 2 === 0) start += p;
-
-      for (let j = start; j <= high; j += 2 * p) {
-        segment[Math.floor((j - low) / 2)] = 1;
+  for (let i = 2; i <= limit; i++) {
+    if (!isComposite[i]) {
+      count++;
+      if (count === n) {
+        return `🌸 ${n} 番目の素数は ${i} です 🌸`;
       }
-    }
-
-    for (let i = 0; i < size; i++) {
-      if (!segment[i]) {
-        count++;
-        if (count === n) {
-          const prime = low + i * 2;
-          return `🌸 ${n} 番目の素数は ${prime} です 🌸`;
+      // i*i からで十分
+      if (i * i <= limit) {
+        for (let j = i * i; j <= limit; j += i) {
+          isComposite[j] = 1;
         }
       }
     }
 
-    // UI を止めないための休憩
-    await new Promise(r => setTimeout(r));
+    // 重くなりすぎないように小休止
+    if (i % 100000 === 0) {
+      await new Promise(r => setTimeout(r));
+    }
   }
 
   return "🌸 範囲が足りませんでした（nが大きすぎるかも）🌸";
@@ -430,51 +411,27 @@ async function countPrimesUnder(n) {
     return "🌸 2以上の整数を入れてね 🌸";
   }
 
-  let count = 1; // 2 は素数
-
+  // n 以下の素数の個数 π(n) を求める
   const limit = n;
-  const segmentSize = 5000000;
-  const sqrtLimit = Math.floor(Math.sqrt(limit));
+  const isComposite = new Uint8Array(limit + 1);
+  let count = 0;
 
-  // 小さい素数
-  const small = new Uint8Array(sqrtLimit + 1);
-  const basePrimes = [];
+  for (let i = 2; i <= limit; i++) {
+    if (!isComposite[i]) {
+      count++;
 
-  for (let i = 2; i <= sqrtLimit; i++) {
-    if (!small[i]) {
-      basePrimes.push(i);
-      for (let j = i * 2; j <= sqrtLimit; j += i) {
-        small[j] = 1;
-      }
-    }
-  }
-
-  // 分割篩
-  for (let low = 3; low <= limit; low += segmentSize) {
-    const high = Math.min(low + segmentSize - 1, limit);
-    const size = Math.floor((high - low) / 2) + 1;
-    const segment = new Uint8Array(size);
-
-    for (const p of basePrimes) {
-      let start = p * p;
-      if (start < low) {
-        start = Math.ceil(low / p) * p;
-      }
-      if (start % 2 === 0) start += p;
-
-      for (let j = start; j <= high; j += 2 * p) {
-        const idx = Math.floor((j - low) / 2);
-        if (idx >= 0 && idx < size) {
-          segment[idx] = 1;
+      // i*i からで十分
+      if (i * i <= limit) {
+        for (let j = i * i; j <= limit; j += i) {
+          isComposite[j] = 1;
         }
       }
     }
 
-    for (let i = 0; i < size; i++) {
-      if (!segment[i]) count++;
+    // UI を止めない
+    if (i % 200000 === 0) {
+      await new Promise(r => setTimeout(r));
     }
-
-    await new Promise(r => setTimeout(r));
   }
 
   return `🌸 ${n} 以下の素数の個数は ${count} 個です 🌸`;
@@ -504,46 +461,26 @@ async function sumPrimesUnder(n) {
     return "🌸 2以上の整数を入れてね 🌸";
   }
 
-  let sum = 2; // 2 は素数
   const limit = n;
-  const segmentSize = 5_000_000;
-  const sqrtLimit = Math.floor(Math.sqrt(limit));
+  const isComposite = new Uint8Array(limit + 1);
+  let sum = 0;
 
-  // 小さい素数を通常の篩で作る
-  const small = new Uint8Array(sqrtLimit + 1);
-  const basePrimes = [];
+  for (let i = 2; i <= limit; i++) {
+    if (!isComposite[i]) {
+      sum += i;
 
-  for (let i = 2; i <= sqrtLimit; i++) {
-    if (!small[i]) {
-      basePrimes.push(i);
-      for (let j = i * 2; j <= sqrtLimit; j += i) {
-        small[j] = 1;
-      }
-    }
-  }
-
-  // 分割篩で n 以下の素数の和を求める
-  for (let low = 3; low <= limit; low += segmentSize) {
-    const high = Math.min(low + segmentSize - 1, limit);
-    const size = Math.floor((high - low) / 2) + 1;
-    const segment = new Uint8Array(size);
-
-    for (const p of basePrimes) {
-      let start = Math.max(p * p, Math.ceil(low / p) * p);
-      if (start % 2 === 0) start += p;
-
-      for (let j = start; j <= high; j += 2 * p) {
-        segment[Math.floor((j - low) / 2)] = 1;
+      // i*i からで十分
+      if (i * i <= limit) {
+        for (let j = i * i; j <= limit; j += i) {
+          isComposite[j] = 1;
+        }
       }
     }
 
-    for (let i = 0; i < size; i++) {
-      if (!segment[i]) {
-        sum += low + i * 2;
-      }
+    // UI を止めない
+    if (i % 200000 === 0) {
+      await new Promise(r => setTimeout(r));
     }
-
-    await new Promise(r => setTimeout(r));
   }
 
   return `🌸 ${n} 以下の素数の和は ${sum} です 🌸`;
