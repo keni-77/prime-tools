@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Prime</title>
+  <link rel="icon" href="🌸M.png">
+
+  <style>
+    body {
+      background-color: #fff5f8;
+      font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+      text-align: center;
+      padding-top: 50px;
+      color: #444;
+    }
+
+    h2 {
+      color: #ff7aa8;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    #num {
+      padding: 10px 15px;
+      font-size: 1.2rem;
+      border: 2px solid #ffb6d4;
+      border-radius: 12px;
+      outline: none;
+      width: 260px;
+      background: #fff;
+      transition: 0.2s;
+    }
+
+    #num:focus {
+      border-color: #ff7aa8;
+      box-shadow: 0 0 5px #ffb6d4;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      font-size: 1.1rem;
+      background-color: #ff9ecb;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      color: white;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background-color: #ff7aa8;
+      transform: scale(1.05);
+    }
+
+    #result {
+      font-family: "Segoe UI", "Arial", sans-serif;
+      line-height: 1.6;
+      font-size: 1.5rem;
+      color:hotpink;
+      word-break: break-all;
+    }
+
+    .box {
+      background: snow;
+      display: inline-block;
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(255, 150, 180, 0.5);
+    }
+
+    button.glow {
+      animation: popGlow 0.25s ease-out;
+    }
+
+    @keyframes popGlow {
+      0% {
+          transform: scale(1);
+          box-shadow: 0 0 0px rgba(255, 150, 200, 0.0);
+      }
+      50% {
+          transform: scale(1.12);
+          box-shadow: 0 0 15px rgba(255, 150, 200, 0.6);
+      }
+      100% {
+          transform: scale(1);
+          box-shadow: 0 0 0px rgba(255, 150, 200, 0.0);
+      }
+    }
+
+    /* その場でくるくる回る花びら */
+    .loader {
+      display: none;
+      margin: 20px auto;
+      width: 60px;
+      height: 60px;
+      position: relative;
+    }
+
+    .loader span {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.5rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to   { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>🌸 素数に関するツール 🌸</h2>
+
+  <input id="num" type="text" placeholder="整数を入力してね">
+  <button onclick="run()">素因数分解</button>
+  <button onclick="runNthPrime()">n番目の素数</button>
+  <button onclick="runCountPrime()">n以下の素数の数</button>
+
+  <p id="result"></p>
+
+  <div class="loader" id="loader">
+    <span>🌸</span>
+  </div>
+
+</div>
+
+<script>
+// 素因数分解コード
+function printPrimeFactorization(inputStr) {
+  // BigInt に変換
+  let n;
+  try {
+    n = BigInt(inputStr);
+  } catch {
+    return "🌸 正しい整数を入力してね 🌸";
+  }
+
+  const sup = ["⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"];
+  const toSup = (x) => String(x).split("").map(c => sup[Number(c)]).join("");
+
+  // 1以下ならエラー
+  if (n <= 1n) {
+    return `🌸 ${n} は素因数分解できません 🌸`;
+  }
+
+  // 素数チェック
+  function isPrime(x) {
+    if (x <= 1n) return false;
+    for (let i = 2n; i * i <= x; i++) {
+      if (x % i === 0n) return false;
+    }
+    return true;
+  }
+
+  if (isPrime(n)) {
+    return `🌸 ${n} は素数です 🌸`;
+  }
+
+  // 素因数分解
+  let original = n;
+  let res = [];
+
+  for (let i = 2n; i * i <= n; i++) {
+    if (n % i === 0n) {
+      let ex = 0;
+      while (n % i === 0n) {
+        ex++;
+        n /= i;
+      }
+      res.push([i, ex]);
+    }
+  }
+
+  if (n !== 1n) {
+    res.push([n, 1]);
+  }
+
+  let output = `${original} = `;
+  output += res.map(([p, e]) => {
+    return e === 1 ? `${p}` : `${p}${toSup(e)}`;
+  }).join(" × ");
+
+  return output;
+}
+
+function run() {
+  const btn = document.querySelector("button");
+  const loader = document.getElementById("loader");
+  const result = document.getElementById("result");
+
+  // 光る演出
+  btn.classList.add("glow");
+  setTimeout(() => btn.classList.remove("glow"), 250);
+
+  const inputStr = document.getElementById("num").value.trim();
+
+  // ロード中表示
+  result.textContent = "⏳ ロード中…";
+  loader.style.display = "block";
+
+  // UI更新のため少し遅らせて計算開始
+  setTimeout(() => {
+    result.textContent = printPrimeFactorization(inputStr);
+    loader.style.display = "none"; // 終わったら消す
+  }, 50);
+}
+
+// 超高速 n番目の素数（Segmented Sieve + 奇数のみ）
+async function nthPrimeUltra(n) {
+  n = Number(n);
+  if (!Number.isInteger(n) || n < 1) {
+    return "🌸 1以上の整数を入れてね 🌸";
+  }
+
+  if (n === 1) return "🌸 1番目の素数は 2 です 🌸";
+
+  // --- 上限推定 ---
+  const nn = n;
+  let limit = Math.ceil(nn * (Math.log(nn) + Math.log(Math.log(nn))));
+  limit = Math.floor(limit * 2.0);
+  if (limit < 100) limit = 100;
+
+  const segmentSize = 5_000_000; // 5百万ずつ処理
+  const sqrtLimit = Math.floor(Math.sqrt(limit));
+
+  // 小さい素数を通常の篩で作る
+  const small = new Uint8Array(sqrtLimit + 1);
+  const basePrimes = [];
+
+  for (let i = 2; i <= sqrtLimit; i++) {
+    if (!small[i]) {
+      basePrimes.push(i);
+      for (let j = i * 2; j <= sqrtLimit; j += i) {
+        small[j] = 1;
+      }
+    }
+  }
+
+  let count = 1; // 2 はカウント済み
+
+  // --- 分割篩 ---
+  for (let low = 3; low <= limit; low += segmentSize) {
+    const high = Math.min(low + segmentSize - 1, limit);
+    const size = Math.floor((high - low) / 2) + 1;
+    const segment = new Uint8Array(size);
+
+    for (const p of basePrimes) {
+      let start = Math.max(p * p, Math.ceil(low / p) * p);
+      if (start % 2 === 0) start += p;
+
+      for (let j = start; j <= high; j += 2 * p) {
+        segment[Math.floor((j - low) / 2)] = 1;
+      }
+    }
+
+    for (let i = 0; i < size; i++) {
+      if (!segment[i]) {
+        count++;
+        if (count === n) {
+          const prime = low + i * 2;
+          return `🌸 ${n} 番目の素数は ${prime} です 🌸`;
+        }
+      }
+    }
+
+    // UI を止めないための休憩
+    await new Promise(r => setTimeout(r));
+  }
+
+  return "🌸 範囲が足りませんでした（nが大きすぎるかも）🌸";
+}
+
+function runNthPrime() {
+  const btn = document.querySelector("button[onclick='runNthPrime()']");
+  const loader = document.getElementById("loader");
+  const result = document.getElementById("result");
+  const inputStr = document.getElementById("num").value.trim();
+
+  btn.classList.add("glow");
+  setTimeout(() => btn.classList.remove("glow"), 250);
+
+  result.textContent = "⏳ ロード中…";
+  loader.style.display = "block";
+
+  setTimeout(async () => {
+    result.textContent = await nthPrimeUltra(inputStr);
+    loader.style.display = "none";
+  }, 50);
+}
+
+async function countPrimesUnder(n) {
+  n = Number(n);
+  if (!Number.isInteger(n) || n < 2) {
+    return "🌸 2以上の整数を入れてね 🌸";
+  }
+
+  // 2 は素数
+  let count = 1;
+
+  // 偶数を除く
+  const limit = n;
+  const segmentSize = 5_000_000;
+  const sqrtLimit = Math.floor(Math.sqrt(limit));
+
+  // 小さい素数を通常の篩で作る
+  const small = new Uint8Array(sqrtLimit + 1);
+  const basePrimes = [];
+
+  for (let i = 2; i <= sqrtLimit; i++) {
+    if (!small[i]) {
+      basePrimes.push(i);
+      for (let j = i * 2; j <= sqrtLimit; j += i) {
+        small[j] = 1;
+      }
+    }
+  }
+
+  // 分割篩で n 以下の素数を数える
+  for (let low = 3; low <= limit; low += segmentSize) {
+    const high = Math.min(low + segmentSize - 1, limit);
+    const size = Math.floor((high - low) / 2) + 1;
+    const segment = new Uint8Array(size);
+
+    for (const p of basePrimes) {
+      let start = Math.max(p * p, Math.ceil(low / p) * p);
+      if (start % 2 === 0) start += p;
+
+      for (let j = start; j <= high; j += 2 * p) {
+        segment[Math.floor((j - low) / 2)] = 1;
+      }
+    }
+
+    for (let i = 0; i < size; i++) {
+      if (!segment[i]) {
+        count++;
+      }
+    }
+
+    // UI を止めない
+    await new Promise(r => setTimeout(r));
+  }
+
+  return `🌸 ${n} 以下の素数の個数は ${count} 個です 🌸`;
+}
+
+function runCountPrime() {
+  const btn = document.querySelector("button[onclick='runCountPrime()']");
+  const loader = document.getElementById("loader");
+  const result = document.getElementById("result");
+  const inputStr = document.getElementById("num").value.trim();
+
+  btn.classList.add("glow");
+  setTimeout(() => btn.classList.remove("glow"), 250);
+
+  result.textContent = "⏳ ロード中…";
+  loader.style.display = "block";
+
+  setTimeout(async () => {
+    result.textContent = await countPrimesUnder(inputStr);
+    loader.style.display = "none";
+  }, 50);
+}
+
+</script>
+
+</body>
+</html>
