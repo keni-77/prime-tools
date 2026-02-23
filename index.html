@@ -53,6 +53,13 @@
       transform: scale(1.05);
     }
 
+    .reset {
+      background-color: silver;
+    }
+    .reset:hover {
+      background-color: red;
+    }
+
     #result {
       font-family: "Segoe UI", "Arial", sans-serif;
       line-height: 1.6;
@@ -122,6 +129,7 @@
   <button onclick="run()">素因数分解</button>
   <button onclick="runNthPrime()">n番目の素数</button>
   <button onclick="runCountPrime()">n以下の素数の数</button>
+  <button onclick="resetAll()" class = "reset">リセット</button>
 
   <p id="result"></p>
 
@@ -367,6 +375,17 @@ function runCountPrime() {
     loader.style.display = "none";
   }, 50);
 }
+
+function resetAll() {
+  const input = document.getElementById("num");
+  const result = document.getElementById("result");
+  const loader = document.getElementById("loader");
+
+  input.value = "";          // 入力欄を空に
+  result.textContent = "";   // 結果を消す
+  loader.style.display = "none"; // ローダーを消す
+}
+
 
 </script>
 
