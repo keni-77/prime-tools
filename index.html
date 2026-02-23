@@ -430,10 +430,8 @@ async function countPrimesUnder(n) {
     return "🌸 2以上の整数を入れてね 🌸";
   }
 
-  // 2 は素数
-  let count = 1;
+  let count = 1; // 2 は素数
 
-  // 偶数を除く
   const limit = n;
   const segmentSize = 5_000_000;
   const sqrtLimit = Math.floor(Math.sqrt(limit));
@@ -458,14 +456,25 @@ async function countPrimesUnder(n) {
     const segment = new Uint8Array(size);
 
     for (const p of basePrimes) {
-      let start = Math.max(p * p, Math.ceil(low / p) * p);
+      // ★ 修正ポイント：start の計算を安全にする
+      let start = p * p;
+      if (start < low) {
+        start = Math.ceil(low / p) * p;
+      }
+
+      // 奇数に揃える
       if (start % 2 === 0) start += p;
 
+      // マーク
       for (let j = start; j <= high; j += 2 * p) {
-        segment[Math.floor((j - low) / 2)] = 1;
+        const idx = Math.floor((j - low) / 2);
+        if (idx >= 0 && idx < size) {
+          segment[idx] = 1;
+        }
       }
     }
 
+    // 素数をカウント
     for (let i = 0; i < size; i++) {
       if (!segment[i]) {
         count++;
