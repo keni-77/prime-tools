@@ -2,30 +2,63 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>素数クイズゲーム</title>
+<title>素数シューティング</title>
 <style>
-  body { font-family: sans-serif; text-align: center; padding: 20px; }
-  #num { font-size: 60px; margin: 20px; }
-  button { font-size: 24px; padding: 10px 20px; margin: 10px; }
+  body {
+    background: #fff5f8;
+    font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+    text-align: center;
+    padding-top: 20px;
+  }
+
+  h1 {
+    color: #ff7aa8;
+  }
+
+  #gameArea {
+    width: 300px;
+    height: 400px;
+    background: snow;
+    margin: 20px auto;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(255,150,180,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .enemy {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    width: 60px;
+    height: 40px;
+    background: #ffe0ef;
+    border-radius: 10px;
+    color: #ff4f9a;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(255,150,180,0.4);
+  }
+
+  #score, #miss {
+    font-size: 1.4rem;
+    color: hotpink;
+  }
 </style>
 </head>
 <body>
 
-<h1>素数クイズゲーム</h1>
-<div id="num">?</div>
-<div>
-  <button onclick="answer(true)">素数！</button>
-  <button onclick="answer(false)">合成数！</button>
-</div>
-<h2 id="score">スコア: 0</h2>
-<h3 id="time">残り: 30 秒</h3>
+<h1>🌸 素数シューティング 🌸</h1>
+
+<div id="score">スコア: 0</div>
+<div id="miss">ミス: 0 / 3</div>
+
+<div id="gameArea"></div>
 
 <script>
-let score = 0;
-let current = 0;
-let timeLeft = 30;
-let timer;
-
 function isPrime(n) {
   if (n < 2) return false;
   if (n === 2) return true;
@@ -37,35 +70,73 @@ function isPrime(n) {
   return true;
 }
 
-function newNumber() {
-  current = Math.floor(Math.random() * 200) + 1;
-  document.getElementById("num").textContent = current;
-}
+const gameArea = document.getElementById("gameArea");
+let score = 0;
+let miss = 0;
 
-function answer(isPrimeGuess) {
-  const correct = isPrime(current);
-  if (correct === isPrimeGuess) {
-    score++;
-  } else {
-    score--;
-  }
-  document.getElementById("score").textContent = "スコア: " + score;
-  newNumber();
-}
+// ★ 敵が同時に大量発生しないようにするフラグ
+let spawning = false;
 
-function startGame() {
-  newNumber();
-  timer = setInterval(() => {
-    timeLeft--;
-    document.getElementById("time").textContent = "残り: " + timeLeft + " 秒";
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      alert("ゲーム終了！スコア: " + score);
+function spawnEnemy() {
+  // ★ すでに敵が落下中なら新しい敵を作らない
+  if (spawning) return;
+  spawning = true;
+
+  const enemy = document.createElement("div");
+  enemy.classList.add("enemy");
+
+  const num = Math.floor(Math.random() * 200) + 1;
+  enemy.textContent = num;
+
+  enemy.style.left = Math.floor(Math.random() * 240) + "px";
+  gameArea.appendChild(enemy);
+
+  let y = -40;
+  const fall = setInterval(() => {
+    y += 2;
+    enemy.style.top = y + "px";
+
+    if (y > 400) {
+      clearInterval(fall);
+      enemy.remove();
+
+      // ★ 次の敵を許可
+      spawning = false;
+
+      if (isPrime(num)) {
+        miss++;
+        updateMiss();
+      }
     }
-  }, 1000);
+  }, 20);
+
+  enemy.onclick = () => {
+    clearInterval(fall);
+    enemy.remove();
+
+    // ★ 次の敵を許可
+    spawning = false;
+
+    if (isPrime(num)) {
+      score++;
+      document.getElementById("score").textContent = "スコア: " + score;
+    } else {
+      miss++;
+      updateMiss();
+    }
+  };
 }
 
-startGame();
+function updateMiss() {
+  document.getElementById("miss").textContent = `ミス: ${miss} / 3`;
+  if (miss >= 3) {
+    alert("ゲームオーバー！ スコア: " + score);
+    location.reload();
+  }
+}
+
+// ★ 1秒ごとに spawnEnemy を呼ぶ（大量発生はフラグで防止）
+setInterval(spawnEnemy, 1000);
 </script>
 
 </body>
