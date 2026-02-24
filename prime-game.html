@@ -82,26 +82,43 @@ let enemyCount = 0;
 
 // ★ レベルと速度
 let level = 1;
-let fallSpeed = 2;      // 落下速度
-let spawnInterval = 1000; // 出現間隔(ms)
+let fallSpeed = 2;          // 落下速度
+let spawnInterval = 1000;   // 出現間隔(ms)
+
+// ★ レベルに応じて素数率を上げる
+function getPrimeRate() {
+  return Math.min(0.3 + (level - 1) * 0.1, 0.8); 
+}
 
 function levelUp() {
   level++;
-  fallSpeed += 0.5;          // 落下速度アップ
-  spawnInterval = Math.max(300, spawnInterval - 100); // 出現間隔短縮
+  fallSpeed += 0.5;          
+  spawnInterval = Math.max(300, spawnInterval - 100);
 }
 
 function spawnEnemy() {
-  if (enemyCount >= MAX_ENEMIES) return; // ★ 5体以上は出さない
+  if (enemyCount >= MAX_ENEMIES) return;
 
   enemyCount++;
 
   const enemy = document.createElement("div");
   enemy.classList.add("enemy");
 
-  const num = Math.floor(Math.random() * 200) + 1;
-  enemy.textContent = num;
+  // ★ 素数率をレベルに応じて変える
+  let num;
+  if (Math.random() < getPrimeRate()) {
+    // 素数を出す
+    do {
+      num = Math.floor(Math.random() * 200) + 1;
+    } while (!isPrime(num));
+  } else {
+    // 合成数を出す
+    do {
+      num = Math.floor(Math.random() * 200) + 1;
+    } while (isPrime(num));
+  }
 
+  enemy.textContent = num;
   enemy.style.left = Math.floor(Math.random() * 240) + "px";
   gameArea.appendChild(enemy);
 
@@ -131,7 +148,6 @@ function spawnEnemy() {
       score++;
       document.getElementById("score").textContent = "スコア: " + score;
 
-      // ★ 10点ごとにレベルアップ
       if (score % 10 === 0) {
         levelUp();
       }
