@@ -74,13 +74,27 @@ const gameArea = document.getElementById("gameArea");
 let score = 0;
 let miss = 0;
 
-// ★ 敵が同時に大量発生しないようにするフラグ
-let spawning = false;
+// ★ 同時に出せる敵の最大数
+const MAX_ENEMIES = 5;
+
+// ★ 現在の敵の数
+let enemyCount = 0;
+
+// ★ レベルと速度
+let level = 1;
+let fallSpeed = 2;      // 落下速度
+let spawnInterval = 1000; // 出現間隔(ms)
+
+function levelUp() {
+  level++;
+  fallSpeed += 0.5;          // 落下速度アップ
+  spawnInterval = Math.max(300, spawnInterval - 100); // 出現間隔短縮
+}
 
 function spawnEnemy() {
-  // ★ すでに敵が落下中なら新しい敵を作らない
-  if (spawning) return;
-  spawning = true;
+  if (enemyCount >= MAX_ENEMIES) return; // ★ 5体以上は出さない
+
+  enemyCount++;
 
   const enemy = document.createElement("div");
   enemy.classList.add("enemy");
@@ -93,15 +107,13 @@ function spawnEnemy() {
 
   let y = -40;
   const fall = setInterval(() => {
-    y += 2;
+    y += fallSpeed;
     enemy.style.top = y + "px";
 
     if (y > 400) {
       clearInterval(fall);
       enemy.remove();
-
-      // ★ 次の敵を許可
-      spawning = false;
+      enemyCount--;
 
       if (isPrime(num)) {
         miss++;
@@ -113,13 +125,17 @@ function spawnEnemy() {
   enemy.onclick = () => {
     clearInterval(fall);
     enemy.remove();
-
-    // ★ 次の敵を許可
-    spawning = false;
+    enemyCount--;
 
     if (isPrime(num)) {
       score++;
       document.getElementById("score").textContent = "スコア: " + score;
+
+      // ★ 10点ごとにレベルアップ
+      if (score % 10 === 0) {
+        levelUp();
+      }
+
     } else {
       miss++;
       updateMiss();
@@ -130,13 +146,18 @@ function spawnEnemy() {
 function updateMiss() {
   document.getElementById("miss").textContent = `ミス: ${miss} / 3`;
   if (miss >= 3) {
-    alert("ゲームオーバー！ スコア: " + score);
+    alert(`ゲームオーバー！ スコア: ${score}`);
     location.reload();
   }
 }
 
-// ★ 1秒ごとに spawnEnemy を呼ぶ（大量発生はフラグで防止）
-setInterval(spawnEnemy, 1000);
+// ★ 出現間隔が変わるので setInterval ではなくループで管理
+function gameLoop() {
+  spawnEnemy();
+  setTimeout(gameLoop, spawnInterval);
+}
+
+gameLoop();
 </script>
 
 </body>
