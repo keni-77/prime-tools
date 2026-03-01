@@ -605,12 +605,10 @@ menuOverlay.onclick = () => {
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // ログイン中
       loginBtn.style.display = "none";
       userStatus.style.display = "block";
       userName.textContent = `${user.displayName} でログイン中`;
     } else {
-      // ログアウト時
       loginBtn.style.display = "block";
       userStatus.style.display = "none";
     }
@@ -618,6 +616,7 @@ menuOverlay.onclick = () => {
 </script>
 </body>
 </html>
+
 
 
 
