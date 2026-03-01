@@ -21,12 +21,11 @@ onAuthStateChanged(auth, user => {
     return;
   }
 
-  // 右上にログイン中の表示
-  const loginStatus = document.getElementById("loginStatus");
-  loginStatus.textContent = `${user.email} でログイン中`;
+  document.getElementById("loginStatus").textContent = `${user.email} でログイン中`;
 
   enableSearch(user);
 });
+
 function enableSearch(user) {
 
   // 入力したら検索
@@ -51,7 +50,7 @@ async function search(user) {
   }
 
   const loading = document.getElementById("loading");
-  loading.style.display = "block";
+  loading.style.display = "block";  // ← 検索中表示
 
   const q = query(
     collection(db, "users"),
@@ -61,8 +60,8 @@ async function search(user) {
 
   const snap = await getDocs(q);
 
-  loading.style.display = "none";
-  searchResult.innerHTML = "";
+  loading.style.display = "none";   // ← 検索完了
+  searchResult.innerHTML = "";      // ← 結果を描画する前にリセット
 
   snap.forEach(docSnap => {
     const u = docSnap.data();
