@@ -1,6 +1,43 @@
-<h2>フレンドを検索</h2>
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Friend Search</title>
+<style>
+#searchUser {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 2px solid #ff9ecb;
+  font-size: 1.1rem;
+}
 
-<input id="searchUser" placeholder="ユーザー名を入力…" />
-<div id="searchResult"></div>
+.userCandidate {
+  background: #ffe4f2;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-<script type="module" src="experimental.js"></script>
+.userCandidate button {
+  background: #ff9ecb;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+  <h2>フレンドを検索</h2>
+
+  <input id="searchUser" placeholder="ユーザー名を入力…" />
+  <div id="searchResult"></div>
+
+  <script type="module" src="experimental.js"></script>
+</body>
+</html>
