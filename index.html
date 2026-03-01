@@ -244,6 +244,8 @@
 <!-- スライドメニュー -->
 <div id="sideMenu">
   <h3>🌸 メニュー 🌸</h3>
+  <button id="loginBtn">Googleでログイン</button>
+  <div id="userInfo"></div>
   <a href="prime-game.html" target="_blank" rel="noopener noreferrer">
     <button>🔫 素数シューティング</button>
   </a>
@@ -564,9 +566,35 @@ menuOverlay.onclick = () => {
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
+
+  // ★ Googleログインの準備
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // ★ ログインボタンの動作
+  document.getElementById("loginBtn").onclick = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        document.getElementById("userInfo").innerHTML =
+          `ログイン中：${user.displayName} さん`;
+      })
+      .catch((error) => {
+        alert("ログイン失敗：" + error.message);
+      });
+  };
+
+  // ★ ログイン状態の監視
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById("userInfo").innerHTML =
+        `ログイン中：${user.displayName} さん`;
+    }
+  });
 </script>
 </body>
 </html>
+
 
 
 
