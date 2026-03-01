@@ -277,16 +277,16 @@
 <div id="menuOverlay"></div>
 
 <div class="box">
-  <button id="loginBtn">Googleでログイン</button>
+  <button id="loginBtn" type="button">Googleでログイン</button>
   <div id="userInfo"></div>
   <h2>🌸 素数に関するツール 🌸</h2>
 
   <input id="num" type="text" placeholder="整数を入力してね">
-  <button onclick="run()">素因数分解</button>
-  <button onclick="runNthPrime()">n番目の素数</button>
-  <button onclick="runCountPrime()">n以下の素数の個数</button>
-  <button onclick="runSumPrime()">n以下の素数の和</button>
-  <button onclick="resetAll()" class = "reset">リセット</button>
+  <button onclick="run()" type="button">素因数分解</button>
+  <button onclick="runNthPrime()" type="button">n番目の素数</button>
+  <button onclick="runCountPrime()" type="button">n以下の素数の個数</button>
+  <button onclick="runSumPrime()" type="button">n以下の素数の和</button>
+  <button onclick="resetAll()" class="reset" type="button">リセット</button>
 
   <p id="result"></p>
 
@@ -616,6 +616,7 @@ menuOverlay.onclick = () => {
 </script>
 </body>
 </html>
+
 
 
 
