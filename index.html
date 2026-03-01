@@ -159,10 +159,22 @@ button.glow {
   margin-bottom: 15px;
 }
 
+/* ===== ボタン（メニュー） ===== */
 #sideMenu button {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  background-color: #ff9ecb;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: white;
+  transition: 0.2s;
+  margin: 6px;
+}
+
+.box button:hover {
+  background-color: #ff7aa8;
+  transform: scale(1.05);
 }
 
 /* ===== オーバーレイ ===== */
@@ -610,6 +622,7 @@ menuOverlay.onclick = () => {
 </script>
 </body>
 </html>
+
 
 
 
