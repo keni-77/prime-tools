@@ -36,6 +36,8 @@ function enableSearch(user) {
 
   // ボタンを押したら検索
   searchBtn.addEventListener("click", () => {
+    searchBtn.classList.add("animate");
+    setTimeout(() => searchBtn.classList.remove("animate"), 150);
     search(user);
   });
 }
@@ -48,6 +50,9 @@ async function search(user) {
     return;
   }
 
+  const loading = document.getElementById("loading");
+  loading.style.display = "block";
+
   const q = query(
     collection(db, "users"),
     where("username", ">=", text),
@@ -56,11 +61,11 @@ async function search(user) {
 
   const snap = await getDocs(q);
 
+  loading.style.display = "none";
   searchResult.innerHTML = "";
+
   snap.forEach(docSnap => {
     const u = docSnap.data();
-
-    // 自分自身は候補に出さない
     if (docSnap.id === user.uid) return;
 
     searchResult.innerHTML += `
