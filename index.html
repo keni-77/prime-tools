@@ -211,7 +211,7 @@
         padding: 10px;
       }
 
-      button {
+      .box button {
         display: block;
         width: 90%;
         margin: 8px auto;
@@ -251,6 +251,29 @@
 
 <!-- メニュー展開時の背景 -->
 <div id="menuOverlay"></div>
+<div id="userStatus" style="
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  display: none;
+  font-size: 0.9rem;
+  z-index: 2000;
+">
+  <span id="userName"></span>
+  <button id="logoutBtn" style="
+    margin-left: 10px;
+    background: #ff7aa8;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  ">ログアウト</button>
+</div>
 <div class="box">
   <button id="loginBtn">Googleでログイン</button>
   <div id="userInfo"></div>
@@ -559,33 +582,41 @@ menuOverlay.onclick = () => {
     measurementId: "G-KM2Q1D6GGY"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
-  document.getElementById("loginBtn").onclick = () => {
+  const loginBtn = document.getElementById("loginBtn");
+  const userStatus = document.getElementById("userStatus");
+  const userName = document.getElementById("userName");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  loginBtn.onclick = () => {
     signInWithPopup(auth, provider)
-      .then((result) => {
-        const user = result.user;
-        document.getElementById("userInfo").innerHTML =
-          `ログイン中：${user.displayName} さん`;
-      })
       .catch((error) => {
         alert("ログイン失敗：" + error.message);
       });
   };
 
+  logoutBtn.onclick = () => {
+    auth.signOut();
+  };
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      document.getElementById("userInfo").innerHTML =
-        `ログイン中：${user.displayName} さん`;
+      // ログイン中
+      loginBtn.style.display = "none";
+      userStatus.style.display = "block";
+      userName.textContent = `${user.displayName} でログイン中`;
+    } else {
+      // ログアウト時
+      loginBtn.style.display = "block";
+      userStatus.style.display = "none";
     }
   });
 </script>
 </body>
 </html>
+
 
 
 
