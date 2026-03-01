@@ -570,7 +570,6 @@ menuOverlay.onclick = () => {
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
@@ -583,6 +582,8 @@ menuOverlay.onclick = () => {
     appId: "1:906511119428:web:d3ea591c0614418dcc7811",
     measurementId: "G-KM2Q1D6GGY"
   };
+
+  const app = initializeApp(firebaseConfig);
 
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
@@ -616,6 +617,7 @@ menuOverlay.onclick = () => {
 </script>
 </body>
 </html>
+
 
 
 
