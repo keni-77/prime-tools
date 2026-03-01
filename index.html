@@ -542,7 +542,31 @@ menuOverlay.onclick = () => {
 
 </script>
 
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCKRpvCjyRkGH0aPH21RyK2Q0Z2aLOSdd8",
+    authDomain: "prime-tools-login.firebaseapp.com",
+    projectId: "prime-tools-login",
+    storageBucket: "prime-tools-login.firebasestorage.app",
+    messagingSenderId: "906511119428",
+    appId: "1:906511119428:web:d3ea591c0614418dcc7811",
+    measurementId: "G-KM2Q1D6GGY"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </body>
 </html>
+
 
 
