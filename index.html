@@ -331,7 +331,7 @@ function printPrimeFactorization(inputStr) {
 }
 
 function run() {
-  const btn = document.querySelector("button");
+  const btn = document.querySelector("button[onclick='run()']");
   const loader = document.getElementById("loader");
   const result = document.getElementById("result");
 
@@ -399,7 +399,7 @@ async function nthPrimeUltra(n) {
 }
 
 function runNthPrime() {
-  const btn = document.querySelector("button[onclick='runNthPrime()']");
+  const btn = document.querySelector("button[onclick=\"runNthPrime()\"]");
   const loader = document.getElementById("loader");
   const result = document.getElementById("result");
   const inputStr = document.getElementById("num").value.trim();
@@ -449,7 +449,7 @@ async function countPrimesUnder(n) {
 }
 
 function runCountPrime() {
-  const btn = document.querySelector("button[onclick='runCountPrime()']");
+  const btn = document.querySelector("button[onclick=\"runCountPrime()\"]");
   const loader = document.getElementById("loader");
   const result = document.getElementById("result");
   const inputStr = document.getElementById("num").value.trim();
@@ -498,7 +498,7 @@ async function sumPrimesUnder(n) {
 }
 
 function runSumPrime() {
-  const btn = document.querySelector("button[onclick='runSumPrime()']");
+  const btn = document.querySelector("button[onclick=\"runSumPrime()\"]");
   const loader = document.getElementById("loader");
   const result = document.getElementById("result");
   const inputStr = document.getElementById("num").value.trim();
@@ -586,6 +586,7 @@ menuOverlay.onclick = () => {
 </script>
 </body>
 </html>
+
 
 
 
