@@ -21,9 +21,12 @@ onAuthStateChanged(auth, user => {
     return;
   }
 
+  // 右上にログイン中の表示
+  const loginStatus = document.getElementById("loginStatus");
+  loginStatus.textContent = `${user.email} でログイン中`;
+
   enableSearch(user);
 });
-
 function enableSearch(user) {
 
   // 入力したら検索
