@@ -1,0 +1,6 @@
+<h2>フレンドを検索</h2>
+
+<input id="searchUser" placeholder="ユーザー名を入力…" />
+<div id="searchResult"></div>
+
+<script type="module" src="experimental.js"></script>
