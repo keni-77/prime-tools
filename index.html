@@ -237,20 +237,7 @@
   </style>
 </head>
 <body>
-
-<!-- メニューボタン -->
-<div id="menuButton">≡</div>
-
-<!-- スライドメニュー -->
-<div id="sideMenu">
-  <h3>🌸 メニュー 🌸</h3>
-  <a href="prime-game.html" target="_blank" rel="noopener noreferrer">
-    <button>🔫 素数シューティング</button>
-  </a>
-</div>
-
-<!-- メニュー展開時の背景 -->
-<div id="menuOverlay"></div>
+<!-- 右上のログイン表示 -->
 <div id="userStatus" style="
   position: fixed;
   top: 10px;
@@ -274,6 +261,21 @@
     cursor: pointer;
   ">ログアウト</button>
 </div>
+
+<!-- メニューボタン -->
+<div id="menuButton">≡</div>
+
+<!-- スライドメニュー -->
+<div id="sideMenu">
+  <h3>🌸 メニュー 🌸</h3>
+  <a href="prime-game.html" target="_blank" rel="noopener noreferrer">
+    <button>🔫 素数シューティング</button>
+  </a>
+</div>
+
+<!-- メニュー展開時の背景 -->
+<div id="menuOverlay"></div>
+
 <div class="box">
   <button id="loginBtn">Googleでログイン</button>
   <div id="userInfo"></div>
@@ -616,6 +618,7 @@ menuOverlay.onclick = () => {
 </script>
 </body>
 </html>
+
 
 
 
