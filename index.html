@@ -187,30 +187,6 @@ button.glow {
   z-index: 500;
 }
 
-/* ===== 右上のログイン表示 ===== */
-#userStatus {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background: white;
-  padding: 10px 16px;
-  border-radius: 14px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-  display: none;
-  font-size: 0.9rem;
-  z-index: 2000;
-}
-
-#logoutBtn {
-  margin-left: 10px;
-  background: #ff7aa8;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
 /* ===== スマホ ===== */
 @media (max-width: 600px) {
   body { padding-top: 20px; }
@@ -240,30 +216,6 @@ button.glow {
   </style>
 </head>
 <body>
-<!-- 右上のログイン表示 -->
-<div id="userStatus" style="
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background: white;
-  padding: 8px 14px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-  display: none;
-  font-size: 0.9rem;
-  z-index: 2000;
-">
-  <span id="userName"></span>
-  <button id="logoutBtn" style="
-    margin-left: 10px;
-    background: #ff7aa8;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-  ">ログアウト</button>
-</div>
   
 <!-- メニューボタン -->
 <div id="menuButton">≡</div>
@@ -280,7 +232,6 @@ button.glow {
 <div id="menuOverlay"></div>
 
 <div class="box">
-  <button id="loginBtn" type="button">Googleでログイン</button>
   <div id="userInfo"></div>
   <h2>🌸 素数に関するツール 🌸</h2>
 
@@ -570,84 +521,5 @@ menuOverlay.onclick = () => {
 };
 
 </script>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged }
-    from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCKRpvCjyRkGH0aPH21RyK2Q0Z2aLOSdd8",
-    authDomain: "prime-tools-login.firebaseapp.com",
-    projectId: "prime-tools-login",
-    storageBucket: "prime-tools-login.appspot.com",
-    messagingSenderId: "906511119428",
-    appId: "1:906511119428:web:d3ea591c0614418dcc7811",
-    measurementId: "G-KM2Q1D6GGY"
-  };
-
-  const app = initializeApp(firebaseConfig);
-
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
-
-  const loginBtn = document.getElementById("loginBtn");
-  const userStatus = document.getElementById("userStatus");
-  const userName = document.getElementById("userName");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  loginBtn.onclick = () => {
-    signInWithPopup(auth, provider)
-      .catch((error) => {
-        alert("ログイン失敗：" + error.message);
-      });
-  };
-
-  logoutBtn.onclick = () => {
-    auth.signOut();
-  };
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      loginBtn.style.display = "none";
-      userStatus.style.display = "block";
-      userName.textContent = `${user.displayName} でログイン中`;
-    } else {
-      loginBtn.style.display = "block";
-      userStatus.style.display = "none";
-    }
-  });
-</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
