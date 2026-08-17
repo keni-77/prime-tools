@@ -2,180 +2,338 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>素数シューティング</title>
+<title>素数リズムタップ 4Lanes</title>
 <link rel="icon" href="https://keni-77.github.io/icon.ico">
 <style>
   body {
-    background: #fff5f8;
+    background: #232028;
+    color: #fff;
     font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
     text-align: center;
-    padding-top: 20px;
+    padding-top: 10px;
+    margin: 0;
+    user-select: none;
   }
-
   h1 {
-    color: #ff7aa8;
+    color: #ff5e98;
+    margin: 5px 0;
+    font-size: 1.6rem;
   }
-
-  #gameArea {
-    width: 300px;
-    height: 400px;
-    background: snow;
-    margin: 20px auto;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(255,150,180,0.4);
+  .info-bar {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ff85b2;
+    margin-bottom: 8px;
+  }
+  #gameContainer {
+    width: 360px;
+    height: 500px;
+    background: #18151f;
+    margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 94, 152, 0.3);
     position: relative;
     overflow: hidden;
+    display: flex;
   }
-
-  .enemy {
+  .lane {
+    flex: 1;
+    height: 100%;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+  .lane:last-child {
+    border-right: none;
+  }
+  .lane:active, .lane.active {
+    background: rgba(255, 255, 255, 0.12);
+  }
+  #judgeLine {
     position: absolute;
-    top: -40px;
+    bottom: 60px;
     left: 0;
+    width: 100%;
+    height: 10px;
+    background: #ff5e98;
+    box-shadow: 0 0 12px #ff5e98;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .key-label {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 60px;
     height: 40px;
-    background: #ffe0ef;
-    border-radius: 10px;
-    color: #ff4f9a;
-    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ff5e98;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(255,150,180,0.4);
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ff85b2;
+    z-index: 3;
+    pointer-events: none;
   }
-
-  #score, #miss {
-    font-size: 1.4rem;
-    color: hotpink;
+  .note {
+    position: absolute;
+    left: 5%;
+    width: 90%;
+    height: 45px;
+    background: linear-gradient(135deg, #ffd1e3, #ff85b2);
+    border: 2px solid #fff;
+    border-radius: 8px;
+    color: #5c0023;
+    font-size: 1.3rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    z-index: 4;
+  }
+  #feedback {
+    position: absolute;
+    top: 150px;
+    width: 100%;
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0,0,0,0.9);
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .perfect { color: #52ffb8; transform: scale(1.2); }
+  .miss { color: #ff477e; transform: scale(1); }
+  .instructions {
+    margin-top: 8px;
+    color: #aaa;
+    font-size: 0.85rem;
   }
 </style>
 </head>
 <body>
 
-<h1>🌸 素数シューティング 🌸</h1>
+<h1>🌸 素数リズムタップ 🌸</h1>
+<div class="info-bar">
+  <div id="score">SCORE: 0</div>
+  <div id="miss">MISS: 0 / 5</div>
+</div>
 
-<div id="score">スコア: 0</div>
-<div id="miss">ミス: 0 / 3</div>
+<div id="gameContainer">
+  <div class="lane" data-lane="0"><div class="key-label">D</div></div>
+  <div class="lane" data-lane="1"><div class="key-label">F</div></div>
+  <div class="lane" data-lane="2"><div class="key-label">J</div></div>
+  <div class="lane" data-lane="3"><div class="key-label">K</div></div>
+  <div id="judgeLine"></div>
+  <div id="feedback"></div>
+</div>
 
-<div id="gameArea"></div>
+<div class="instructions">
+  キー <b>[D] [F] [J] [K]</b> または <b>各レーンをタップ</b><br>
+  ※素数が来たらタイミングよく叩く！合成数は見逃せ！
+</div>
 
 <script>
-function isPrime(n) {
-  if (n < 2) return false;
-  if (n === 2) return true;
-  if (n % 2 === 0) return false;
-  const r = Math.floor(Math.sqrt(n));
-  for (let i = 3; i <= r; i += 2) {
-    if (n % i === 0) return false;
-  }
-  return true;
+// 2〜999の素数リスト (全168個)
+const PRIMES_ARR = [
+  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
+  101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199,
+  211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293,
+  307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397,
+  401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499,
+  503, 509, 521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593, 599,
+  601, 607, 613, 617, 619, 631, 641, 643, 647, 653, 659, 661, 673, 677, 683, 691,
+  701, 709, 719, 727, 733, 739, 743, 751, 757, 761, 769, 773, 787, 797,
+  809, 811, 821, 823, 827, 829, 839, 853, 857, 859, 863, 877, 881, 883, 887, 893,
+  907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997
+];
+const PRIMES = new Set(PRIMES_ARR);
+
+// 合成数リストを自動生成
+const COMPOSITES_ARR = [];
+for (let i = 2; i <= 999; i++) {
+  if (!PRIMES.has(i)) COMPOSITES_ARR.push(i);
 }
 
-const gameArea = document.getElementById("gameArea");
+const laneEls = document.querySelectorAll(".lane");
+const feedbackEl = document.getElementById("feedback");
+
 let score = 0;
 let miss = 0;
+let isGameOver = false;
 
-// ★ 同時に出せる敵の最大数
-const MAX_ENEMIES = 5;
+let notes = [];
+const fallSpeed = 4.0; 
 
-// ★ 現在の敵の数
-let enemyCount = 0;
+// リズム管理 (BPM 130 相当: 約461msごとにノーツ生成)
+const BEAT_INTERVAL = 460;
+let lastBeatTime = 0;
 
-// ★ レベルと速度
-let level = 1;
-let fallSpeed = 2;          // 落下速度
-let spawnInterval = 1000;   // 出現間隔(ms)
+const JUDGE_TARGET_Y = 430;
+const JUDGE_RANGE = 50;
 
-// ★ レベルに応じて素数率を上げる
-function getPrimeRate() {
-  return Math.min(0.3 + (level - 1) * 0.1, 0.8); 
-}
-
-function levelUp() {
-  level++;
-  fallSpeed += 0.5;          
-  spawnInterval = Math.max(300, spawnInterval - 100);
-}
-
-function spawnEnemy() {
-  if (enemyCount >= MAX_ENEMIES) return;
-
-  enemyCount++;
-
-  const enemy = document.createElement("div");
-  enemy.classList.add("enemy");
-
-  // ★ 素数率をレベルに応じて変える
-  let num;
-  if (Math.random() < getPrimeRate()) {
-    // 素数を出す
-    do {
-      num = Math.floor(Math.random() * 200) + 1;
-    } while (!isPrime(num));
+// ランダムな数字を取得（60%の確率で素数）
+function getRandomNumber() {
+  if (Math.random() < 0.6) {
+    return PRIMES_ARR[Math.floor(Math.random() * PRIMES_ARR.length)];
   } else {
-    // 合成数を出す
-    do {
-      num = Math.floor(Math.random() * 200) + 1;
-    } while (isPrime(num));
+    return COMPOSITES_ARR[Math.floor(Math.random() * COMPOSITES_ARR.length)];
   }
+}
 
-  enemy.textContent = num;
-  enemy.style.left = Math.floor(Math.random() * 240) + "px";
-  gameArea.appendChild(enemy);
+// 拍ごとにノーツ生成（1個または2個同時）
+function spawnBeatNotes() {
+  if (isGameOver) return;
 
-  let y = -40;
-  const fall = setInterval(() => {
-    y += fallSpeed;
-    enemy.style.top = y + "px";
+  const lanes = [0, 1, 2, 3];
+  // 35%の確率で2つ同時、65%で1つ
+  const spawnCount = Math.random() < 0.35 ? 2 : 1;
 
-    if (y > 400) {
-      clearInterval(fall);
-      enemy.remove();
-      enemyCount--;
+  for (let i = 0; i < spawnCount; i++) {
+    const laneIdx = lanes.splice(Math.floor(Math.random() * lanes.length), 1)[0];
+    const num = getRandomNumber();
 
-      if (isPrime(num)) {
-        miss++;
-        updateMiss();
-      }
+    const el = document.createElement("div");
+    el.classList.add("note");
+    el.textContent = num;
+    el.style.top = "-50px";
+
+    laneEls[laneIdx].appendChild(el);
+
+    notes.push({
+      lane: laneIdx,
+      num: num,
+      isPrime: PRIMES.has(num),
+      y: -50,
+      el: el,
+      judged: false
+    });
+  }
+}
+
+function showFeedback(text, isGood) {
+  feedbackEl.textContent = text;
+  feedbackEl.className = isGood ? "perfect" : "miss";
+  feedbackEl.style.opacity = "1";
+  setTimeout(() => { feedbackEl.style.opacity = "0"; }, 200);
+}
+
+function addMiss() {
+  miss++;
+  document.getElementById("miss").textContent = `MISS: ${miss} / 5`;
+  showFeedback("MISS!", false);
+
+  if (miss >= 5) {
+    isGameOver = true;
+    setTimeout(() => {
+      alert(`GAME OVER!\nスコア: ${score}`);
+      location.reload();
+    }, 100);
+  }
+}
+
+function handleLaneInput(laneIndex) {
+  if (isGameOver) return;
+
+  laneEls[laneIndex].classList.add("active");
+  setTimeout(() => laneEls[laneIndex].classList.remove("active"), 100);
+
+  let targetIndex = -1;
+  let minDistance = Infinity;
+
+  notes.forEach((note, idx) => {
+    if (note.judged || note.lane !== laneIndex) return;
+
+    const noteCenter = note.y + 22.5;
+    const dist = Math.abs(noteCenter - JUDGE_TARGET_Y);
+
+    if (dist < JUDGE_RANGE && dist < minDistance) {
+      minDistance = dist;
+      targetIndex = idx;
     }
-  }, 20);
+  });
 
-  enemy.onclick = () => {
-    clearInterval(fall);
-    enemy.remove();
-    enemyCount--;
+  if (targetIndex !== -1) {
+    const target = notes[targetIndex];
+    target.judged = true;
+    target.el.remove();
 
-    if (isPrime(num)) {
+    if (target.isPrime) {
       score++;
-      document.getElementById("score").textContent = "スコア: " + score;
-
-      if (score % 10 === 0) {
-        levelUp();
-      }
-
+      document.getElementById("score").textContent = "SCORE: " + score;
+      showFeedback("PERFECT!", true);
     } else {
-      miss++;
-      updateMiss();
+      addMiss();
     }
-  };
-}
-
-function updateMiss() {
-  document.getElementById("miss").textContent = `ミス: ${miss} / 3`;
-  if (miss >= 3) {
-    alert(`ゲームオーバー！ スコア: ${score}`);
-    location.reload();
+  } else {
+    showFeedback("EMPTY!", false);
   }
 }
 
-// ★ 出現間隔が変わるので setInterval ではなくループで管理
-function gameLoop() {
-  spawnEnemy();
-  setTimeout(gameLoop, spawnInterval);
+function update(time) {
+  if (!isGameOver) {
+    // 均等な拍リズムでノーツを生成
+    if (time - lastBeatTime >= BEAT_INTERVAL) {
+      spawnBeatNotes();
+      lastBeatTime = time;
+    }
+
+    for (let i = notes.length - 1; i >= 0; i--) {
+      const note = notes[i];
+      if (note.judged) {
+        notes.splice(i, 1);
+        continue;
+      }
+
+      note.y += fallSpeed;
+      note.el.style.top = note.y + "px";
+
+      if (note.y > JUDGE_TARGET_Y + JUDGE_RANGE) {
+        note.judged = true;
+        note.el.remove();
+        notes.splice(i, 1);
+
+        if (note.isPrime) {
+          addMiss();
+        }
+      }
+    }
+  }
+  requestAnimationFrame(update);
 }
 
-gameLoop();
-</script>
+const KEY_MAP = {
+  'KeyD': 0, 'KeyF': 1, 'KeyJ': 2, 'KeyK': 3,
+  'KeyA': 0, 'KeyS': 1, 'KeyL': 3
+};
 
+window.addEventListener("keydown", (e) => {
+  if (e.repeat) return;
+  if (KEY_MAP.hasOwnProperty(e.code)) {
+    e.preventDefault();
+    handleLaneInput(KEY_MAP[e.code]);
+  }
+});
+
+laneEls.forEach((el) => {
+  const laneIdx = parseInt(el.getAttribute("data-lane"), 10);
+  el.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    handleLaneInput(laneIdx);
+  });
+});
+
+requestAnimationFrame(update);
+</script>
 </body>
 </html>
